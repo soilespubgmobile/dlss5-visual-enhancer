@@ -136,7 +136,7 @@ Rectangle {
         anchors.left: parent.left; anchors.leftMargin: 12; anchors.verticalCenter: parent.verticalCenter; spacing: 8
         Image {
             objectName: "applicationBrandIcon"
-            source: "qrc:/branding/icon.png"
+            source: Qt.resolvedUrl("../assets/relios-vision.png")
             sourceSize: Qt.size(112, 112)
             width: 28; height: 28
             fillMode: Image.PreserveAspectFit
