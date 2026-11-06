@@ -135,6 +135,7 @@ Window {
             onModelsRequested: appWindow.showModels()
             onImportPresetRequested: presetDialogs.openImport()
             onExportPresetRequested: presetDialogs.openExport()
+            onSlotsRequested: presetDialogs.openSlots()
         }
 
         Item {

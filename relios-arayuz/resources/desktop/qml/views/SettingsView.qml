@@ -50,7 +50,7 @@ Rectangle {
                         AppLanguageComboBox {
                             width: parent.width
                             label: qsTranslate("App", "Interface Language")
-                            model: appBridge ? appBridge.languageChoices.map(function(c) { return c.value === "pl" ? {label: "Türkçe", value: c.value, fontFamily: c.fontFamily} : c }) : [{label: "English (US)", value: "en_US", fontFamily: Theme.fontFamily}]
+                            model: [{label: "Türkçe", value: "pl", fontFamily: "Segoe UI"}, {label: "English", value: "en_US", fontFamily: "Segoe UI"}]
                             currentValue: appBridge ? appBridge.language : "en_US"
                             onActivated: (value) => { if (appBridge) appBridge.language = value }
                         }

@@ -37,7 +37,7 @@ Rectangle {
             spacing: 20
             Text {
                 width: parent.width
-                text: "Modeller programla birlikte çevrimdışı kurulur. Eksik görünen bir model varsa paketi Baslat.bat ile yeniden açın."
+                text: "Modeller programla birlikte çevrimdışı kullanılır. "Bulunamadı" görünen model bu bilgisayarda yüklü değildir."
                 color: Theme.textSecondary
                 font.family: Theme.fontFamily
                 font.pixelSize: 12

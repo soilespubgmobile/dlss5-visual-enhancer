@@ -17,6 +17,7 @@ Rectangle {
     signal modelsRequested()
     signal importPresetRequested()
     signal exportPresetRequested()
+    signal slotsRequested()
     property Item presetOpener: null
     property Item helpOpener: null
     readonly property bool submenuVisible: presetsMenu.visible || helpMenu.visible
@@ -331,9 +332,21 @@ Rectangle {
         focus: true
         margins: 8
         padding: 4
-        width: Math.ceil(Math.max(importAction.implicitWidth, exportAction.implicitWidth)) + leftPadding + rightPadding
+        width: Math.ceil(Math.max(slotsAction.implicitWidth, importAction.implicitWidth, exportAction.implicitWidth)) + leftPadding + rightPadding
         closePolicy: QQC2.Popup.CloseOnEscape | QQC2.Popup.CloseOnPressOutside
         background: Rectangle { color: Theme.bgSurface; border.color: Theme.borderDefault; radius: Theme.radiusMedium }
+        HeaderMenuAction {
+            id: slotsAction
+            ownerMenu: presetsMenu
+            objectName: "reliosSlotsAction"
+            text: "Kayıtlı ayarlarım…"
+            enabled: root.appBridge !== null
+            onTriggered: {
+                presetsMenu.restoreKeyboardFocus = true
+                presetsMenu.close()
+                Qt.callLater(function() { root.slotsRequested() })
+            }
+        }
         HeaderMenuAction {
             id: importAction
             ownerMenu: presetsMenu
@@ -360,9 +373,8 @@ Rectangle {
         }
         onOpened: {
             restoreKeyboardFocus = false
-            currentIndex = importAction.enabled ? 0 : 1
-            if (importAction.enabled) importAction.forceActiveFocus()
-            else exportAction.forceActiveFocus()
+            currentIndex = 0
+            slotsAction.forceActiveFocus()
         }
         onClosed: root.finishMenu(presetsMenu, root.presetOpener)
     }
