@@ -1,0 +1,59 @@
+name: Offline Qt6Network (Qt 6.12.0)
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'offline-qtnetwork/**'
+      - '.github/workflows/offline-qtnetwork.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-2022
+    timeout-minutes: 150
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Get Qt 6.12.0 qtbase source
+        shell: bash
+        run: git clone --depth 1 --branch v6.12.0 https://github.com/qt/qtbase.git qtbase
+
+      - name: Apply offline patch
+        shell: bash
+        run: python offline-qtnetwork/patch_qtnetwork.py qtbase && git -C qtbase diff
+
+      - name: Configure (MSVC x64, release)
+        shell: cmd
+        run: |
+          call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+          mkdir build
+          cd build
+          call ..\qtbase\configure.bat -release -opensource -confirm-license -nomake examples -nomake tests -no-gui -no-widgets -no-dbus -prefix C:\qtinst -- -G Ninja
+          if errorlevel 1 exit /b 1
+          cmake -LA -N . | findstr /I "FEATURE_ssl FEATURE_http FEATURE_http2 FEATURE_icu FEATURE_schannel FEATURE_openssl"
+
+      - name: Build Qt6Network.dll
+        shell: cmd
+        run: |
+          call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+          cd build
+          cmake --build . --target Network --parallel
+          if errorlevel 1 exit /b 1
+          mkdir ..\out
+          copy bin\Qt6Network.dll ..\out\Qt6Network.dll
+          dumpbin /nologo /exports bin\Qt6Network.dll > ..\out\exports.txt
+          dumpbin /nologo /dependents bin\Qt6Network.dll > ..\out\dependents.txt
+          dumpbin /nologo /imports bin\Qt6Network.dll > ..\out\imports.txt
+          git -C ..\qtbase diff > ..\out\offline.patch
+
+      - name: Publish release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          tag="offline-qtnetwork-${GITHUB_RUN_NUMBER}"
+          gh release create "$tag" out/* --title "Offline Qt6Network.dll (Qt 6.12.0) #${GITHUB_RUN_NUMBER}" \
+            --notes "Qt 6.12.0 Qt6Network.dll with QNetworkAccessManager blocked for all non-local requests. Built by GitHub Actions run ${GITHUB_RUN_ID}." --prerelease
