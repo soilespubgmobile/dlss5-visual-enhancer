@@ -25,5 +25,8 @@ if defined EKSIK (
   )
   echo Modeller kuruldu.
 )
+rem Ilk acilista arayuz dili Turkce olsun (Turkce ceviri app_pl.qm olarak kurulu).
+reg query "HKCU\Software\Merserk\Visual Enhancer\interface" /v language >nul 2>&1
+if errorlevel 1 reg add "HKCU\Software\Merserk\Visual Enhancer\interface" /v language /t REG_SZ /d pl /f >nul
 start "" "%PAKET%Visual Enhancer\Visual Enhancer.exe"
 endlocal
